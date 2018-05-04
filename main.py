@@ -1,50 +1,54 @@
 ## -*- coding: utf-8 -*-
-
-strike_char = "#"
+import sys
+strike_char = "-"
 
 with open('words.txt') as f:
     words = f.read().splitlines()
 
-def handle(que, option="", word=""):
-    if que == "":
-        print(option)
-    else:
-        if word == "hell##":
-            print("yes: " + que)
+def handle(input):
+    input = input.lower()
+    for word in words:
+        pos_list = [0]
+        for char in word:
+            try:
+                pos_list.append(input.index(char,pos_list[-1]+1))
+            except ValueError:
+                pass
+        pos_list = pos_list[1:]
+        if sorted(pos_list) == pos_list and len(pos_list) == len(word):
+            pos_list = shift(input, pos_list)
+            string = get_strike_chars(len(input))
+            temp = input
+            while " " in temp:
+                string = set_char_at(string, temp.find(" "), " ")
+                temp = set_char_at(temp, temp.find(" "), "_")
+            for char, pos in zip(word, pos_list):
+                string = set_char_at(string, pos, char)
+            print(string + "   " + word)
 
-        # if any(replace(word + que[0]) in s for s in words): #could be completed to a valid word with next char in que
+def shift(text, pos_list):
+    for i in range(len(pos_list)-1):
+        okay = True
+        while okay:
+            char = text[pos_list[i]]
+            try:
+                new_pos = text.index(char, pos_list[i]+1)
+            except ValueError:
+                okay = False
+            else:
+                if new_pos < pos_list[i+1]:
+                    pos_list[i] = new_pos
+                else:
+                    okay = False
+    return pos_list
 
-        if possible(que, word): #could be completed to a valid word with next char in que
-            handle(que[1:], option, word + que[0])
-        else:
-            handle(que[1:], option, word + strike_char)
-
-            # handle(que[1:], option + get_strike_chars(len(word)), "")
-
-        if replace(word) in words: #finished word
-            handle(que[1:], option + "|" + word, "") # go on with the rest and a empty word
-
-def replace(string):
-    string = string.replace(strike_char, "")
-    string = string.replace(" ", "")
-    return string
-
-def possible(que, word):
-    for w in words:
-        p = False
-        if replace(word) in w:
-            p = True
-            for c in w[len(replace(word)):]:
-                if not c in que:
-                    p = False
-        if p:
-            return True
-
+def set_char_at(string, pos, char):
+    return string[:pos] + char + string[pos+1:]
 
 def get_strike_chars(n):
-    chars = ""
+    string = ""
     for i in range(n):
-        chars += strike_char
-    return chars
+        string += strike_char
+    return string
 
-handle("hellxxworld ")
+handle(sys.argv[1])
