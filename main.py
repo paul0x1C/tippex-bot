@@ -8,7 +8,7 @@ with open('words.txt') as f:
 def handle(input):
     input = input.lower()
     for word in words:
-        pos_list = [0]
+        pos_list = [-1]
         for char in word:
             try:
                 pos_list.append(input.index(char,pos_list[-1]+1))
