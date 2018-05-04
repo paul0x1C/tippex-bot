@@ -24,13 +24,21 @@ def help(bot, update):
 def msg(bot, update):
     """Echo the user message."""
     logger.info("Got message '%s' from '%s'" % (update.message.text, update.message.from_user))
-    words = tippex.handle(update.message.text)
-    reply = "<code>"
-    for word in words:
-        reply += word + "\n"
-    reply += "</code>"
-    update.message.reply_text(reply, parse_mode=ParseMode.HTML)
+    if len(update.message.text) > 32 :
+        answer(update, "Too long!")
+    else:
+        words = tippex.handle(update.message.text)
+        reply = ""
+        for word in words:
+            reply += word + "\n"
+        while len(reply)>3000:
+            answer(update, reply[:3000])
+            reply = reply[3000:]
+        answer(update, reply)
 
+
+def answer(update, text):
+    update.message.reply_text("<code>"+text+"</code>", parse_mode=ParseMode.HTML)
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
